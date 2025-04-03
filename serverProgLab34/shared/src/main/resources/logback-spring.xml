@@ -1,0 +1,15 @@
+<configuration>
+
+    <appender name="REQUEST_LOG" class="ch.qos.logback.core.FileAppender">
+        <file>logs/requests.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} | %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.example.ServerProgLab34.Logger.RequestLoggingFilter" level="DEBUG">
+        <appender-ref ref="REQUEST_LOG"/>
+    </logger>
+
+    <root level="OFF"/>
+</configuration>

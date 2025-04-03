@@ -27,16 +27,10 @@ public class Main {
              OutputStream out = clientSocket.getOutputStream()) {
 
             String requestLine = in.readLine();
-            if (requestLine == null || !requestLine.startsWith("GET")) {
-                sendErrorResponse(out, 400, "Bad Request");
-                return;
-            }
+
 
             String[] requestParts = requestLine.split(" ");
-            if (requestParts.length < 2) {
-                sendErrorResponse(out, 400, "Bad Request");
-                return;
-            }
+
 
             String path = requestParts[1].substring(1);
             File file = new File(path);

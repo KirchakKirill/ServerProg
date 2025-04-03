@@ -48,9 +48,6 @@ class AsyncHandler implements HttpHandler {
                 System.out.println("handle method 3 ");
                 CompletableFuture.runAsync(() -> send404Response(exchange));
             }
-        } else {
-            System.out.println("handle method 4 ");
-            CompletableFuture.runAsync(() -> send405MethodNotAllowed(exchange));
         }
     }
 
