@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div th:fragment = "subscribe_form">
+    <h4 class="text-sm font-semibold">Stay Updated</h4>
+    <form th:action = "@{subscribe}" method = "post" class="mt-4 flex" th:object ="${subscribe}">
+        <input type="email" placeholder="Enter your email"
+               class="px-4 py-2 rounded-l-full flex-1 text-swamp-900" th:field = "*{email}">
+        <button class="bg-swamp-500 px-6 py-2 rounded-r-full hover:bg-swamp-600">Subscribe</button>
+    </form>
+</div>
+</body>
+</html>

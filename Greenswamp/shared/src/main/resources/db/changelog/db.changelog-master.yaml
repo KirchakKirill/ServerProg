@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: init-schema
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/init_schema.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: insert-schema1
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/insert_schema1.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: insert-schema2
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/insert_schema2.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: insert-schema3
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/insert_schema3.sql
+            relativeToChangelogFile: true

@@ -1,0 +1,32 @@
+insert into interactions (user_id,post_id,interaction_type) values (1,3,'comment');
+insert into interactions (user_id,post_id,interaction_type) values (1,3,'reribb');
+
+insert into interactions (user_id,post_id,interaction_type) values (1,5,'comment');
+insert into interactions (user_id,post_id,interaction_type) values (1,5,'reribb');
+
+
+insert into interactions (user_id,post_id,interaction_type) values (2,3,'comment');
+insert into interactions (user_id,post_id,interaction_type) values (2,3,'reribb');
+
+insert into interactions (user_id,post_id,interaction_type) values (2,5,'comment');
+insert into interactions (user_id,post_id,interaction_type) values (2,5,'reribb');
+
+
+
+insert into interactions (user_id,post_id,interaction_type) values (3,1,'comment');
+insert into interactions (user_id,post_id,interaction_type) values (2,2,'reribb');
+
+insert into interactions (user_id,post_id,interaction_type) values (1,2,'comment');
+insert into interactions (user_id,post_id,interaction_type) values (2,1,'reribb');
+
+insert into interactions (user_id,post_id,interaction_type) values (3,2,'comment');
+insert into interactions (user_id,post_id,interaction_type) values (1,1,'reribb');
+
+
+
+
+
+
+
+
+
