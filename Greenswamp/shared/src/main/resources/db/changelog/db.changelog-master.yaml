@@ -29,3 +29,11 @@ databaseChangeLog:
         - sqlFile:
             path: changesets/insert_schema3.sql
             relativeToChangelogFile: true
+
+  - changeSet:
+      id: change-table
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/change_table.sql
+            relativeToChangelogFile: true

@@ -1,38 +1,33 @@
-insert into users (username,display_name,avatar_url,bio) values('Kiri11','@kkkddd117','https://i.pravatar.cc/100?u=dorm29_frogs@pravatar.com','my biography ...');
-insert into users (username,display_name,avatar_url,bio) values('FroggyFriends','@dorm23_frogs','https://i.pravatar.cc/100?u=dorm23_frogs@pravatar.com','my biography1 ...');
-insert into users (username,display_name,avatar_url,bio) values('Princess Toadstool','@ptst_toad','https://i.pravatar.cc/100?u=ptst_toad@pravatar.com','my biography2 ...');
-
-
-
-insert into posts (user_id, content,post_type) values (2,'Anyone want to form a study group for the biology midterm? 🐸
-Meeting at the lilypad cafe tomorrow 3PM!','text');
-
-insert into posts (user_id, content,post_type) values (3,'What is hopping friends? ☂️', 'text');
-
-insert into posts (user_id,
-  content,
-  post_type,
-  media_url,
-  media_type,
-  alt_text,
-  thumbnail_url) values (1,'New project on GitHub', 'image','https://images.unsplash.com/photo-1633356122544-f134324a6cee','image','Photo my code','https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=300');
-
-insert into posts (user_id,
-  content,
-  post_type) values (1,'Campus Bonfire Night', 'text');
-
-  INSERT INTO posts (user_id,
-    content,
-    post_type,
-    media_url,
-    media_type,
-    thumbnail_url
-  ) VALUES (
-    2,
-    'Big buck bunny',
-    'video',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    'video',
-    'https://i.ytimg.com/vi/aqz-KE-bpKQ/maxresdefault.jpg');
-
-insert into events (post_id,event_time,location,host_org,rsvp_count,max_capacity) values (4, '2025-05-28 18:30:00+03','South Quad','Student Activities Board',63,100);
+--
+--insert into posts (user_id, content,post_type) values (2,'Anyone want to form a study group for the biology midterm? 🐸
+--Meeting at the lilypad cafe tomorrow 3PM!','text');
+--
+--insert into posts (user_id, content,post_type) values (3,'What is hopping friends? ☂️', 'text');
+--
+--insert into posts (user_id,
+--  content,
+--  post_type,
+--  media_url,
+--  media_type,
+--  alt_text,
+--  thumbnail_url) values (1,'New project on GitHub', 'image','https://images.unsplash.com/photo-1633356122544-f134324a6cee','image','Photo my code','https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=300');
+--
+--insert into posts (user_id,
+--  content,
+--  post_type) values (1,'Campus Bonfire Night', 'text');
+--
+--  INSERT INTO posts (user_id,
+--    content,
+--    post_type,
+--    media_url,
+--    media_type,
+--    thumbnail_url
+--  ) VALUES (
+--    2,
+--    'Big buck bunny',
+--    'video',
+--    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+--    'video',
+--    'https://i.ytimg.com/vi/aqz-KE-bpKQ/maxresdefault.jpg');
+--
+--insert into events (post_id,event_time,location,host_org,rsvp_count,max_capacity) values (4, '2025-05-28 18:30:00+03','South Quad','Student Activities Board',63,100);

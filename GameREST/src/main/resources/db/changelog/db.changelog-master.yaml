@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: 01_reference_data
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/01_reference_data.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 02_game
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/02_game.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 03_game_publisher
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/03_game_publisher.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 04_game_platform
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/04_game_platform.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 05_region_sales
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/05_region_sales.sql
+            relativeToChangelogFile: true
+
+
+  - changeSet:
+      id: 06_changes_type_id
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/06_changes_type_id.sql
+            relativeToChangelogFile: true
+
+
+  - changeSet:
+      id: 07_changes_constraint
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/07_changes_constraint.sql
+            relativeToChangelogFile: true

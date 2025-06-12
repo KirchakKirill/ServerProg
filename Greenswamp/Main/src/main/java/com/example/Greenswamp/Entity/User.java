@@ -1,6 +1,18 @@
 package com.example.Greenswamp.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.Constraint;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchConnectionDetails;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +28,27 @@ public class User {
 
     @Column(name = "username", unique = true, nullable = false)
     private String username;
+
+
+    @Column(name= "password",nullable = false)
+    @Size(min = 8, max = 255, message = "Пароль должен быть от 8 до 255 символов")
+    private String password;
+
+
+    @Column(name = "email",unique = true, nullable = false)
+    @NotBlank(message = "Email не может быть пустым")
+    @Email(regexp = "^[A-Za-z0-9._%-]+@(mail\\.ru|gmail\\.com|yandex\\.ru)$",message = "incorrect email")
+    @NotNull
+    private String email;
+
+    @NotNull
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "users_authorities",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn( name = "authority_id")
+    )
+    private  List<Authority> authority;
 
     @Column(name = "display_name", nullable = false)
     private String displayName;
@@ -38,14 +71,18 @@ public class User {
     @Column(name = "is_active")
     private Boolean isActive;
 
+
+
     // Конструкторы
     public User() {
     }
 
+
     public User(Long id, String username, String displayName, String avatarUrl,
-                String bio, LocalDateTime createdAt, Boolean isActive) {
+                String bio, LocalDateTime createdAt, Boolean isActive,String email) {
         this.id = id;
         this.username = username;
+        this.email = email;
         this.displayName = displayName;
         this.avatarUrl = avatarUrl;
         this.bio = bio;
@@ -124,6 +161,30 @@ public class User {
 
     public void setIsActive(Boolean active) {
         isActive = active;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public List<Authority> getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(List<Authority> authority) {
+        this.authority = authority;
     }
 
     // equals и hashCode

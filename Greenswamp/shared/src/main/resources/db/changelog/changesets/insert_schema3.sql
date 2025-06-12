@@ -1,11 +1,11 @@
-insert into posts (user_id, content,post_type,parent_post_id) values (1,'Sounds cool, I am in!','text',1);
-insert into posts (user_id, content,post_type,parent_post_id) values (3,'Great idea, I will be there. I might be 10 minutes late.','text',1);
-
-insert into posts (user_id, content,post_type,parent_post_id) values (1,'Interesting cartoon:)','text',5);
-insert into posts (user_id, content,post_type,parent_post_id) values (3,'Made with high quality, I recommend it.','text',5);
-
-insert into posts (user_id, content,post_type,parent_post_id) values (1,'I do not understand your question.','text',2);
-
-insert into interactions (user_id,post_id,interaction_type)   values (2,4,'rsvp');
-insert into interactions (user_id,post_id,interaction_type)   values (1,4,'rsvp');
-insert into interactions (user_id,post_id,interaction_type)   values (3,4,'rsvp');
+--insert into posts (user_id, content,post_type,parent_post_id) values (1,'Sounds cool, I am in!','text',1);
+--insert into posts (user_id, content,post_type,parent_post_id) values (3,'Great idea, I will be there. I might be 10 minutes late.','text',1);
+--
+--insert into posts (user_id, content,post_type,parent_post_id) values (1,'Interesting cartoon:)','text',5);
+--insert into posts (user_id, content,post_type,parent_post_id) values (3,'Made with high quality, I recommend it.','text',5);
+----
+--insert into posts (user_id, content,post_type,parent_post_id) values (1,'I do not understand your question.','text',2);
+--
+--insert into interactions (user_id,post_id,interaction_type)   values (2,4,'rsvp');
+--insert into interactions (user_id,post_id,interaction_type)   values (1,4,'rsvp');
+--insert into interactions (user_id,post_id,interaction_type)   values (3,4,'rsvp');
