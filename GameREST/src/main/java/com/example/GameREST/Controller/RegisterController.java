@@ -4,10 +4,12 @@ package com.example.GameREST.Controller;
 import com.example.GameREST.DTO.UserDTO;
 import com.example.GameREST.Service.Interfaces.UserAuthorityService;
 import com.example.GameREST.Service.Interfaces.UserService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,17 +30,30 @@ public class RegisterController {
     }
 
     @PostMapping("/register")
-    @Transactional
-    public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO, BindingResult bindingResult) throws  BindException {
 
-        if (userService.existsByUserName(userDTO.getUsername())) {
-            return ResponseEntity.badRequest().body("Username already exists");
+        if(bindingResult.hasErrors()) {
+            if (bindingResult instanceof BindException exception) {
+                throw exception;
+            } else {
+                throw new BindException(bindingResult);
+            }
+        }
+        else {
+
+            if (userService.existsByUserName(userDTO.getUsername())) {
+                return ResponseEntity.badRequest().body("Username already exists");
+            }
+
+            userService.save(userDTO.getUsername(), userDTO.getPassword());
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
 
-        var user = userService.save(userDTO.getUsername(), userDTO.getPassword());
-        log.info(String.valueOf(user));
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+
+
+
+
 
     }
 

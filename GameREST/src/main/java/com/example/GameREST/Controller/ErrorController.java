@@ -24,7 +24,7 @@ public class ErrorController {
     public ResponseEntity<ProblemDetail> handleBindException(BindException  bindException, Locale locale)
     {
         ProblemDetail problemDetail  = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
-                this.messageSource.getMessage("error.400.title", new Object[0],"error.400.title", locale));
+                this.messageSource.getMessage("Неверные данные или формат данных", new Object[0],"Неверные данные или формат данных", locale));
         problemDetail.setProperty("errors", bindException.getAllErrors()
                 .stream().map(ObjectError::getDefaultMessage).toList());
         return ResponseEntity

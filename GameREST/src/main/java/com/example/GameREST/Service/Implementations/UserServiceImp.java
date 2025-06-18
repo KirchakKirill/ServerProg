@@ -36,6 +36,7 @@ public class UserServiceImp implements UserService {
 
 
     @Override
+    @Transactional
     public UserEntity save(String username, String password) {
 
         UserEntity userEntity = new UserEntity();
@@ -49,14 +50,7 @@ public class UserServiceImp implements UserService {
 
         userEntity.getAuthorities().add(userAuthority);
 
-         UserEntity user = userRepository.save(userEntity);
-         userRepository.flush();
-         return user;
-    }
-
-    @Override
-    public void updateUser(UserEntity user) {
-        userRepository.save(user);
+         return userRepository.save(userEntity);
     }
 
     @Override

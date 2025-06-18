@@ -14,7 +14,5 @@ public interface UserService {
 
     UserEntity save(String username, String password);
 
-    void updateUser(UserEntity user);
-
     boolean existsByUserName(String username);
 }
