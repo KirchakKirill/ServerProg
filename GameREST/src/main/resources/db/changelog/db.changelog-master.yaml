@@ -55,3 +55,21 @@ databaseChangeLog:
         - sqlFile:
             path: changesets/07_changes_constraint.sql
             relativeToChangelogFile: true
+
+
+  - changeSet:
+      id: 08_changes_auth
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/08_changes_auth.sql
+            relativeToChangelogFile: true
+
+
+  - changeSet:
+      id: 09_changes_auth_seq
+      author: Kirchak
+      changes:
+        - sqlFile:
+            path: changesets/09_changes_auth_seq.sql
+            relativeToChangelogFile: true

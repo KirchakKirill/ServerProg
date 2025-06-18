@@ -69,7 +69,6 @@ public class GameController
                 .stream()
                 .map(this::createDTO)
                 .toList();
-        log.info("allgames:" + allGames);
 
         return new ResponseEntity<>( responseBody,
                 HttpStatusCode.valueOf(200));

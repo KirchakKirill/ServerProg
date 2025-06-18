@@ -61,7 +61,7 @@ public class DataInitializer implements CommandLineRunner {
         user3.setBio("my biography2 ...");
         user3.setAuthority(List.of(userAuthority));
 
-        // Сохранение пользователей
+
         userRepository.saveAll(List.of(user1, user2, user3));
     }
 }
