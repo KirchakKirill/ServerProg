@@ -17,12 +17,16 @@ import java.util.Optional;
 public interface GamePublisherRepository extends JpaRepository<GamePublisherEntity,Long> {
 
     @Query("select g from GamePublisherEntity g where g.game = :game and g.publisher = :publisher")
-    public Optional<GamePublisherEntity> findByGameAndPublisher(@Param("game") GameEntity game,
+    Optional<GamePublisherEntity> findByGameAndPublisher(@Param("game") GameEntity game,
                                                                 @Param("publisher") PublisherEntity publisher);
 
     @Modifying
     @Query("Update GamePublisherEntity g set g.game = :game, g.publisher = :publisher where g.id = :id")
-    public void update(@Param("id") Long id,
+    void update(@Param("id") Long id,
                        @Param("game") GameEntity game,
                        @Param("publisher") PublisherEntity publisher);
+
+
+
+
 }

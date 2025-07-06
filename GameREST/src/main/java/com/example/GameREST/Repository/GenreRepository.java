@@ -18,5 +18,8 @@ public interface GenreRepository extends JpaRepository<GenreEntity,Long> {
 
     @Modifying
     @Query("Update GenreEntity g set g.genreName = :genreName where g.id = :id")
-    public void update(@Param("id") Long id, @Param("genreName") String genreName);
+    void update(@Param("id") Long id, @Param("genreName") String genreName);
+
+    @Query("select count(g) from GameEntity g where g.genre = :genre")
+    Integer existsGameByGenre(@Param("genre") GenreEntity genre);
 }

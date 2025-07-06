@@ -3,6 +3,8 @@ package com.example.GameREST.Repository;
 import com.example.GameREST.Entity.GameEntity;
 import com.example.GameREST.Entity.GenreEntity;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,10 +28,11 @@ public interface GameRepository extends JpaRepository<GameEntity,Long> {
             @Param("genre") GenreEntity newGenre
     );
 
-    @Query("select g from GameEntity g  where g.genre.genreName = :genre")
-    List<GameEntity> findAllByGenre(@Param("genre") String genre);
+    Page<GameEntity> findByGenre(GenreEntity genre,Pageable pageable);
 
+    @Query("SELECT COUNT(g) FROM GameEntity g WHERE g.genre = :genre")
+    Integer existsWithGenre(@Param("genre") GenreEntity genre);
 
-
-
+    @Query("SELECT COUNT(g) FROM GamePublisherEntity g WHERE g.game = :game")
+    Integer existsWithGame(@Param("game") GameEntity game);
 }

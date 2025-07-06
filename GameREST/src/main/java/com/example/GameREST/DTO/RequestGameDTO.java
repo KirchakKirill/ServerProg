@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 public class RequestGameDTO {
 
     @NotBlank
-    @Size(min = 3)
+    @Size(min = 3, max =  50)
     private String gameName;
 
     @NotBlank
-    @Size(min = 3)
+    @Size(min = 3, max = 50)
     private String genreName;
 }

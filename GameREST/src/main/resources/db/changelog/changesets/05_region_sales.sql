@@ -4,8 +4,8 @@ CREATE TABLE video_games.region_sales (
   region_id INT DEFAULT NULL,
   game_platform_id INT DEFAULT NULL,
   num_sales DECIMAL(5,2) DEFAULT NULL,
-  CONSTRAINT fk_rs_gp FOREIGN KEY (game_platform_id) REFERENCES video_games.game_platform (id),
-  CONSTRAINT fk_rs_reg FOREIGN KEY (region_id) REFERENCES video_games.region (id)
+  CONSTRAINT fk_rs_gp FOREIGN KEY (game_platform_id) REFERENCES video_games.game_platform (id) ON DELETE CASCADE,
+  CONSTRAINT fk_rs_reg FOREIGN KEY (region_id) REFERENCES video_games.region (id) ON DELETE CASCADE
 );
 
 

@@ -21,16 +21,26 @@ public class RegionSalesEntity {
 
     @MapsId("regionId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "region_id",referencedColumnName = "id")
+    @JoinColumn(name = "region_id",
+                foreignKey = @ForeignKey(
+                        name = "fk_rs_reg",
+                        foreignKeyDefinition = "FOREIGN KEY (region_id) REFERENCES" +
+                                "video_games.region(id) ON DELETE CASCADE"
+                ))
     private RegionEntity region;
 
     @MapsId("gamePlatformId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_platform_id", referencedColumnName = "id")
+    @JoinColumn(name = "game_platform_id",
+                foreignKey = @ForeignKey(
+                        name = "fk_rs_gp",
+                        foreignKeyDefinition = "FOREIGN KEY (game_platform_id) REFERENCES " +
+                                "video_games.game_platform(id) ON DELETE CASCADE"
+                ))
     private GamePlatformEntity gamePlatform;
 
     @Column(name = "num_sales")
-    private int numSales;
+    private float numSales;
 }
 
 

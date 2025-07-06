@@ -1,5 +1,5 @@
 
-DROP TABLE IF EXISTS video_games.t_user;
+DROP TABLE IF EXISTS video_games.t_user CASCADE;
 
 
 
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS video_games.t_user
 );
 
 
-DROP TABLE IF EXISTS video_games.t_user_authority;
+DROP TABLE IF EXISTS video_games.t_user_authority CASCADE;
 
 CREATE TABLE IF NOT EXISTS video_games.t_user_authority
 (
@@ -29,4 +29,4 @@ CREATE TABLE IF NOT EXISTS video_games.t_deactivated_token
 );
 
 insert into video_games.t_user (c_username,c_password) values ('kirill','$2a$10$Pt3w/uIbVfzA61TlHx3A/O12K/9sz60NKgi.DvbzOwDRZQEMT0/4u');
-insert into video_games.t_user_authority (id_user,c_authority) values (1,'ROLE_USER');
+insert into video_games.t_user_authority (id_user,c_authority) values (1,'ROLE_ADMIN');

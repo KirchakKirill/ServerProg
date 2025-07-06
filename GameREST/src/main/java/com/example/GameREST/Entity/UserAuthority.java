@@ -1,5 +1,6 @@
 package com.example.GameREST.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class UserAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +25,7 @@ public class UserAuthority {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user",nullable = false)
+
     private UserEntity user;
 
     public UserAuthority(String authority, UserEntity user)
@@ -30,5 +33,6 @@ public class UserAuthority {
         this.authority = authority;
         this.user = user;
     }
+
 
 }

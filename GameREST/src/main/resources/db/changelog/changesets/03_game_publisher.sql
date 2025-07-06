@@ -5,8 +5,8 @@ CREATE TABLE video_games.game_publisher (
   game_id INT DEFAULT NULL,
   publisher_id INT DEFAULT NULL,
   CONSTRAINT pk_gamepub PRIMARY KEY (id),
-  CONSTRAINT fk_gpu_gam FOREIGN KEY (game_id) REFERENCES video_games.game (id),
-  CONSTRAINT fk_gpu_pub FOREIGN KEY (publisher_id) REFERENCES video_games.publisher (id)
+  CONSTRAINT fk_gpu_gam FOREIGN KEY (game_id) REFERENCES video_games.game (id) ON DELETE CASCADE,
+  CONSTRAINT fk_gpu_pub FOREIGN KEY (publisher_id) REFERENCES video_games.publisher (id) ON DELETE CASCADE
 );
 
 

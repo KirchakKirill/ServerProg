@@ -22,4 +22,7 @@ public interface PublisherRepository extends JpaRepository<PublisherEntity,Long>
     @Query("Update PublisherEntity p set p.publisherName = :publisherName where p.id = :id")
     void update(@Param("id") Long id, @Param("publisherName") String publisherName);
 
+    @Query("SELECT  COUNT(gp) from GamePublisherEntity gp where gp.publisher = :publisher")
+    Integer existsByPublisher(@Param("publisher") PublisherEntity publisher);
+
 }

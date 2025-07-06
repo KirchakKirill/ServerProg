@@ -8,39 +8,41 @@ import com.example.GameREST.Service.Interfaces.GamePublisherService;
 import com.example.GameREST.Service.Interfaces.GameService;
 import com.example.GameREST.Service.Interfaces.GenreService;
 import com.example.GameREST.Service.Interfaces.PublisherService;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
 @Service
 public class GamePublisherServiceImplementation implements GamePublisherService {
 
-    @Autowired
-    private GamePublisherRepository gamePublisherRepository;
 
-    @Autowired
-    private GameService gameService;
+    private final  GamePublisherRepository gamePublisherRepository;
 
-    @Autowired
-    private GenreService genreService;
 
-    @Autowired
-    private PublisherService publisherService;
+    private final  GameService gameService;
+
+
+    private final  GenreService genreService;
+
+
+    private final PublisherService publisherService;
+
+    public GamePublisherServiceImplementation(GamePublisherRepository gamePublisherRepository, GameService gameService, GenreService genreService, PublisherService publisherService) {
+        this.gamePublisherRepository = gamePublisherRepository;
+        this.gameService = gameService;
+        this.genreService = genreService;
+        this.publisherService = publisherService;
+    }
 
 
     @Override
-    @Transactional
-    public GamePublisherEntity save(RequestGamePlatformDTO requestGamePlatformDTO) {
+    public GamePublisherEntity createOrFind(RequestGamePlatformDTO requestGamePlatformDTO) {
 
             GameEntity game = this.getGame(requestGamePlatformDTO);
             PublisherEntity publisher =  this.getPublisher(requestGamePlatformDTO.getPublisherName());
 
-            GamePublisherEntity gamePublisher = returnIfExists(game,publisher);
+            GamePublisherEntity gamePublisher =  gamePublisherRepository
+                            .findByGameAndPublisher(game,publisher).orElse(null);
 
             if(gamePublisher == null) {
 
@@ -55,79 +57,23 @@ public class GamePublisherServiceImplementation implements GamePublisherService 
             }
     }
 
-        @Override
-        public Optional<GamePublisherEntity> findByGameAndPublisher(GameEntity game, PublisherEntity publisher) {
-                return  gamePublisherRepository.findByGameAndPublisher(game,publisher);
-        }
 
     @Override
-    @Transactional
-    public void update(Long id, GameEntity game, PublisherEntity publisher, RequestGamePlatformDTO requestGamePlatformDTO) throws IllegalArgumentException,ResponseStatusException {
-
-        GameEntity findGame = gameService.findByGameName(requestGamePlatformDTO.getGameName())
-                .orElseThrow(()->  new IllegalArgumentException("Некорректная  игра " +
-                        "или такой не существует"));
-
-
-        PublisherEntity findPublisher = publisherService.findPublisherByName(requestGamePlatformDTO.getPublisherName())
-                        .orElseThrow(() -> new IllegalArgumentException("Некорректный  издатель " +
-                                "или такого не существует"));
-
-        GenreEntity genre = genreService.findGenreByName(requestGamePlatformDTO.getGenreName())
-                .orElseThrow(()-> new IllegalArgumentException("Некорректный  жанр " +
-                        "или такой не существует"));
-
-
-        GamePublisherEntity gamePublisher = gamePublisherRepository.findById(id).get();
-
-
-            if(gamePublisher.getGame().getId().equals(findGame.getId())
-                    && gamePublisher.getPublisher().getId().equals(findPublisher.getId())) {
-
-                if (findGame.getGenre().getGenreName().equals(requestGamePlatformDTO.getGenreName())) {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT,
-                            "Данные не изменены:  сущность уже содержит указанные значения [gameName,publisherName,genreName]");
-                }
-                else {
-                    gameService.updateGame(findGame.getId(), findGame.getGameName(), genre);
-                }
-            }
-            else
-            {
-                gamePublisherRepository.update(id,findGame,findPublisher);
-            }
-
+    public Optional<GamePublisherEntity> findByGameAndPublisher(GameEntity game, PublisherEntity publisher) {
+        return  gamePublisherRepository.findByGameAndPublisher(game,publisher);
     }
 
 
 
-    public GamePublisherEntity returnIfExists(GameEntity gameEntity, PublisherEntity publisherEntity){
-                Optional<GamePublisherEntity> gamePublisher =  gamePublisherRepository
-                        .findByGameAndPublisher(gameEntity,publisherEntity);
-                GamePublisherEntity currentGamePublisher;
-
-                if (gamePublisher.isPresent())
-                {
-                        currentGamePublisher = gamePublisher.get();
-                        return currentGamePublisher;
-                }
-                else{
-                        return null;
-
-                }
-        }
-
-
-    public GameEntity getGame(RequestGamePlatformDTO requestGamePlatformDTO) {
+    private GameEntity getGame(RequestGamePlatformDTO requestGamePlatformDTO) {
             /* если жанр существует, то вернется в currentGenre, если нет, то создастся и также вернется */
-            GenreEntity currentGenre = genreService.save(requestGamePlatformDTO.getGenreName());
-            return gameService.addNewGame(requestGamePlatformDTO.getGameName(), currentGenre);
+        GenreEntity currentGenre = genreService.createOrFind(requestGamePlatformDTO.getGenreName());
+        return gameService.createGameForLink(requestGamePlatformDTO.getGameName(), currentGenre);
     }
 
-
-    public PublisherEntity getPublisher( String publisherName){
+    private PublisherEntity getPublisher( String publisherName){
             /* если издатель существует, то метод save его вернет, если нет, то создаст, сохранит в БД и вернет */
-            return  publisherService.save(publisherName);
+            return  publisherService.createOrFind(publisherName);
     }
 
 

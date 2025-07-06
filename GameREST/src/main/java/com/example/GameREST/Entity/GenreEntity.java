@@ -12,7 +12,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "games")
 public class GenreEntity
 {
     @Id
@@ -22,8 +21,5 @@ public class GenreEntity
 
     @Column(name = "genre_name",nullable = false,unique = true)
     private String genreName;
-
-    @OneToMany(mappedBy = "genre")
-    private List<GameEntity> games;
 
 }

@@ -13,9 +13,8 @@ import java.util.Optional;
 @Service
 public interface GamePublisherService {
 
-    GamePublisherEntity save(RequestGamePlatformDTO requestGamePlatformDTO);
+    GamePublisherEntity createOrFind(RequestGamePlatformDTO requestGamePlatformDTO);
 
     Optional<GamePublisherEntity> findByGameAndPublisher(GameEntity game,
                                                                  PublisherEntity publisher);
-    void update(Long id, GameEntity game,PublisherEntity publisher, RequestGamePlatformDTO requestGamePlatformDTO);
 }

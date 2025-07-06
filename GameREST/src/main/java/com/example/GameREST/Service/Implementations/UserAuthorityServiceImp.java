@@ -11,6 +11,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+
 @Slf4j
 @Service
 public class UserAuthorityServiceImp implements UserAuthorityService
@@ -32,7 +35,7 @@ public class UserAuthorityServiceImp implements UserAuthorityService
         role = role.toUpperCase();
         var user1 = userService.findByUserName(username).orElse(null);
         log.info(String.valueOf(user1));
-        if(user1==null) throw new NullPointerException("Такого юзера не существует");
+        if(user1==null) throw new NoSuchElementException("Такого юзера не существует");
 
         UserAuthority authority = UserAuthority.builder()
                 .authority("ROLE_"+role)
@@ -40,6 +43,11 @@ public class UserAuthorityServiceImp implements UserAuthorityService
                 .build();
 
         return authorityRepository.saveAndFlush(authority);
+    }
+
+    @Override
+    public List<UserAuthority> findAuthoritiesByUser(Long id) {
+        return authorityRepository.findAuthoritiesByUser(id);
     }
 
 

@@ -17,5 +17,9 @@ public interface PlatformRepository extends JpaRepository<PlatformEntity,Long> {
 
     @Modifying
     @Query("Update PlatformEntity p set p.platformName = :platformName where p.id = :id")
-     void update(@Param("id") Long id, @Param("platformName") String platformName);
+    void update(@Param("id") Long id, @Param("platformName") String platformName);
+
+    @Query("SELECT COUNT(gp) FROM GamePlatformEntity gp WHERE gp.platform = :platform")
+    Integer existsGamePlatformByPlatform(@Param("platform") PlatformEntity platform);
+
 }

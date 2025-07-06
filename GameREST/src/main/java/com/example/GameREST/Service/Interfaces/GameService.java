@@ -2,6 +2,9 @@ package com.example.GameREST.Service.Interfaces;
 
 import com.example.GameREST.Entity.GameEntity;
 import com.example.GameREST.Entity.GenreEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +15,11 @@ import java.util.Optional;
 public interface GameService {
     Optional<GameEntity> findById(Long id);
     GameEntity addNewGame(String gameName, GenreEntity genre);
-    void updateGame(Long id, String gameName, GenreEntity updateGenre);
-    void deleteGame(Long id);
-    List<GameEntity> allGames();
-    List<GameEntity> findAllByGenre(String genre);
+    void updateGame(Long id, String gameName, GenreEntity updateGenre,boolean forceUpdate);
+    void deleteGame(Long id, boolean forceDelete);
+    Page<GameEntity> findAllByGenreWithPaging(String genre, Pageable pageable);
     Optional<GameEntity> findByGameName( String name);
+    Page<GameEntity> allGamesWithPaging(PageRequest pageRequest);
+    GameEntity createGameForLink(String gameName, GenreEntity genreAdd);
 
 }

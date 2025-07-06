@@ -1,63 +1,84 @@
 package com.example.GameREST.Service.Implementations;
 
 import com.example.GameREST.DTO.RequestGamePlatformDTO;
+import com.example.GameREST.DTO.RequestGamePlatformUpdateDTO;
 import com.example.GameREST.Entity.*;
+import com.example.GameREST.Exception.EntityAlreadyExistsException;
 import com.example.GameREST.Repository.GamePlatformRepository;
-import com.example.GameREST.Service.Interfaces.GamePlatformSevice;
-import com.example.GameREST.Service.Interfaces.GamePublisherService;
-import com.example.GameREST.Service.Interfaces.PlatformService;
+import com.example.GameREST.Repository.GamePublisherRepository;
+import com.example.GameREST.Service.Interfaces.*;
+import jakarta.persistence.EntityExistsException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 public class GamePlatformServiceImplementation implements GamePlatformSevice
 {
 
-    @Autowired
-    private GamePlatformRepository gamePlatformRepository;
 
-    @Autowired
-    private GamePublisherService gamePublisherService;
+    private final  GamePlatformRepository gamePlatformRepository;
 
-    @Autowired
-    private PlatformService platformService;
+
+    private final GamePublisherService gamePublisherService;
+
+
+    private final PlatformService platformService;
+
+    private final GameService gameService;
+
+    private final PublisherService publisherService;
+
+    private final GamePublisherRepository gamePublisherRepository;
+
+    public GamePlatformServiceImplementation(GamePlatformRepository gamePlatformRepository, GamePublisherService gamePublisherService, PlatformService platformService, GameService gameService, PublisherService publisherService, GamePublisherRepository gamePublisherRepository) {
+        this.gamePlatformRepository = gamePlatformRepository;
+        this.gamePublisherService = gamePublisherService;
+        this.platformService = platformService;
+        this.gameService = gameService;
+        this.publisherService = publisherService;
+        this.gamePublisherRepository = gamePublisherRepository;
+    }
 
     @Override
     @Transactional
     public GamePlatformEntity save(RequestGamePlatformDTO requestGamePlatformDTO) {
 
-        GamePublisherEntity gamePublisher = gamePublisherService.save(requestGamePlatformDTO);
-        PlatformEntity platform = platformService.save(requestGamePlatformDTO.getPlatformName());
+        GamePublisherEntity gamePublisher = gamePublisherService.createOrFind(requestGamePlatformDTO);
+        PlatformEntity platform = platformService.createOrFind(requestGamePlatformDTO.getPlatformName());
 
-        GamePlatformEntity gamePlatformEntity = returnIfExists(gamePublisher,platform,requestGamePlatformDTO.getReleaseYear());
-        if(gamePlatformEntity == null) {
+        GamePlatformEntity gamePlatformEntity = gamePlatformRepository
+                .findByGamePublisherAndPlatform(gamePublisher,platform).orElse(null);
 
-            GamePlatformEntity newGamePlatformEntity = GamePlatformEntity.builder()
+        if  (gamePlatformEntity !=null) throw  new  EntityAlreadyExistsException("Такая связь (Игра + Издатель + Платформа) уже существует:\n" +
+                "или связь [Игра - Издатель] должна быть новая, или платформа, или все сразу",
+                GamePlatformEntity.class.getSimpleName(),
+                gamePlatformEntity.getId());
+
+
+        gamePlatformEntity = GamePlatformEntity.builder()
                     .gamePublisher(gamePublisher)
                     .releaseYear(requestGamePlatformDTO.getReleaseYear())
                     .platform(platform)
                     .build();
-            return gamePlatformRepository.save(newGamePlatformEntity);
-        }
-        else {
-            return gamePlatformEntity;
-        }
+
+        return gamePlatformRepository.save(gamePlatformEntity);
+
     }
 
     @Override
-    public Optional<GamePlatformEntity> findByGamePublisherAndPlatformAndReleaseYear(GamePublisherEntity gamePublisherEntity, PlatformEntity platformEntity,Integer releaseYear) {
-        return  gamePlatformRepository.findByGamePublisherAndPlatformAndReleaseYear(gamePublisherEntity,platformEntity,releaseYear);
-    }
+    public Page<GamePlatformEntity> getAll(Pageable pageable) {
 
-    @Override
-    public List<GamePlatformEntity> getAll() {
-        return gamePlatformRepository.findAll();
+        return gamePlatformRepository.findAll(pageable);
     }
 
     @Override
@@ -67,25 +88,66 @@ public class GamePlatformServiceImplementation implements GamePlatformSevice
 
     @Override
     @Transactional
-    public void update(GamePlatformEntity gamePlatformEntity , RequestGamePlatformDTO newDataForGamePlatformUpdate) throws IllegalArgumentException, ResponseStatusException {
+    public void update(Long id , RequestGamePlatformUpdateDTO updateDTO){
 
-        gamePublisherService.update(
-                gamePlatformEntity.getGamePublisher().getId(),
-                gamePlatformEntity.getGamePublisher().getGame(),
-                gamePlatformEntity.getGamePublisher().getPublisher(),
-                newDataForGamePlatformUpdate);
+        GamePlatformEntity gamePlatformEntity = gamePlatformRepository.findById(id)
+                .orElseThrow(()-> new NoSuchElementException("GamePlatform не найден"));
 
-        PlatformEntity findPlatform = platformService.findPlatformByName(newDataForGamePlatformUpdate.getPlatformName())
-                .orElseThrow(()->  new IllegalArgumentException("Некорректная  платформа " +
-                        "или такой не существует"));
+        GamePublisherEntity currentGamePublisher = gamePlatformEntity.getGamePublisher();
+        GameEntity currentGame = currentGamePublisher.getGame();
+        PublisherEntity currentPublisher = currentGamePublisher.getPublisher();
 
-        if(findPlatform.getId().equals(gamePlatformEntity.getPlatform().getId())
-                && gamePlatformEntity.getReleaseYear() == newDataForGamePlatformUpdate.getReleaseYear()) {
-            throw  new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Данные не изменены: сущность уже содержит указанные значения [platformName, releaseYear]");
+        if (!currentGame.getGameName().equals(updateDTO.getGameName()))
+        {
+
+            currentGame = gameService.findByGameName(updateDTO.getGameName())
+                    .orElseThrow(()-> new NoSuchElementException("Игра не найдена"));
+
         }
 
-        gamePlatformRepository.update(gamePlatformEntity.getId(),gamePlatformEntity.getGamePublisher(),findPlatform, newDataForGamePlatformUpdate.getReleaseYear());
+        if (!currentPublisher.getPublisherName().equals(updateDTO.getPublisherName()))
+        {
+            currentPublisher = publisherService.findPublisherByName(updateDTO.getPublisherName())
+                    .orElseThrow(()-> new NoSuchElementException("Издатель не найден"));
+
+        }
+
+        GamePublisherEntity newGamePublisher = currentGamePublisher;
+        if (!currentGamePublisher.getGame().equals(currentGame)
+                || !currentGamePublisher.getPublisher().equals(currentPublisher))
+        {
+            final GameEntity finalCurrentGame = currentGame;
+            final PublisherEntity finalCurrentPublisher = currentPublisher;
+
+            newGamePublisher  = gamePublisherService
+                    .findByGameAndPublisher(currentGame,currentPublisher)
+                    .orElseGet(()-> gamePublisherRepository.save(
+                            GamePublisherEntity.builder()
+                            .game(finalCurrentGame)
+                            .publisher(finalCurrentPublisher)
+                            .build()));
+        }
+
+        PlatformEntity newPlatform = gamePlatformEntity.getPlatform();
+        if (!gamePlatformEntity.getPlatform().getPlatformName().equals(updateDTO.getPlatformName())) {
+
+            newPlatform   = platformService.findPlatformByName(updateDTO.getPlatformName())
+                    .orElseThrow(() -> new NoSuchElementException("Платформа " +
+                            "не найдена"));
+        }
+
+
+        GamePlatformEntity gamePlatform = gamePlatformRepository.findByGamePublisherAndPlatform(
+                newGamePublisher,
+                newPlatform).orElse(null);
+        if (gamePlatform != null)
+        {
+            throw new EntityAlreadyExistsException("Такая связь (Игра + Издатель + Платформа) уже существует",
+                                                    GamePlatformEntity.class.getSimpleName(),
+                                                    gamePlatform.getId());
+        }
+
+        gamePlatformRepository.update(gamePlatformEntity.getId(),newGamePublisher,newPlatform, updateDTO.getReleaseYear());
     }
 
     @Override
@@ -93,19 +155,4 @@ public class GamePlatformServiceImplementation implements GamePlatformSevice
         gamePlatformRepository.deleteById(id);
     }
 
-    public GamePlatformEntity returnIfExists(GamePublisherEntity gamePublisherEntity, PlatformEntity platformEntity,Integer releaseYear){
-        Optional<GamePlatformEntity> gamePlatformEntity =  gamePlatformRepository
-                .findByGamePublisherAndPlatformAndReleaseYear(gamePublisherEntity,platformEntity,releaseYear);
-        GamePlatformEntity  currentGamePlatformEntity;
-
-        if (gamePlatformEntity.isPresent())
-        {
-            currentGamePlatformEntity = gamePlatformEntity.get();
-            return  currentGamePlatformEntity;
-        }
-        else{
-            return null;
-
-        }
-    }
 }

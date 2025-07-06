@@ -1,12 +1,14 @@
 package com.example.GameREST.Repository;
 
 import com.example.GameREST.Entity.*;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,10 +16,10 @@ import java.util.Optional;
 @Repository
 public interface GamePlatformRepository extends JpaRepository<GamePlatformEntity,Long> {
 
-        @Query("select g from GamePlatformEntity g where g.gamePublisher = :gamePublisher and g.platform = :platform and g.releaseYear = :releaseYear")
-        Optional<GamePlatformEntity> findByGamePublisherAndPlatformAndReleaseYear(@Param("gamePublisher")GamePublisherEntity gamePublisherEntity,
-                                                                                  @Param("platform")PlatformEntity platformEntity,
-                                                                                  @Param("releaseYear") Integer releaseYear );
+        @Query("select g from GamePlatformEntity g where g.gamePublisher = :gamePublisher and g.platform = :platform")
+        Optional<GamePlatformEntity> findByGamePublisherAndPlatform(@Param("gamePublisher")GamePublisherEntity gamePublisherEntity,
+                                                                                  @Param("platform")PlatformEntity platformEntity
+                                                                                   );
 
 
         @Modifying
@@ -29,6 +31,7 @@ public interface GamePlatformRepository extends JpaRepository<GamePlatformEntity
                 @Param("platform") PlatformEntity platform,
                 @Param("releaseYear") Integer releaseYear
         );
+
 
 
 

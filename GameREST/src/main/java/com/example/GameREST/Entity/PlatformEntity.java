@@ -19,12 +19,9 @@ public class PlatformEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id",nullable = false)
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "platform_name",nullable = false,unique = true)
+    @Column(name = "platform_name", nullable = false, unique = true)
     private String platformName;
-
-    @OneToMany(mappedBy = "platform")
-    private List<GamePlatformEntity> gamePlatformEntities;
 }

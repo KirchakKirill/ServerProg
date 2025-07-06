@@ -2,15 +2,23 @@ package com.example.GameREST.Service.Implementations;
 
 import com.example.GameREST.Entity.GameEntity;
 import com.example.GameREST.Entity.GenreEntity;
+import com.example.GameREST.Exception.BusinessLogicException;
+import com.example.GameREST.Exception.EntityAlreadyExistsException;
+import com.example.GameREST.Exception.UniqueConstraintViolationException;
 import com.example.GameREST.Repository.GameRepository;
-import com.example.GameREST.Repository.GenreRepository;
 import com.example.GameREST.Service.Interfaces.GameService;
+import com.example.GameREST.Service.Interfaces.GenreService;
+import jakarta.persistence.EntityExistsException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -21,7 +29,7 @@ public  class GameServiceImplementation implements GameService {
     private GameRepository gameRepository;
 
     @Autowired
-    private GenreRepository genreRepository;
+    private GenreService genreService;
 
     @Override
     public Optional<GameEntity> findById(Long id) {
@@ -31,7 +39,9 @@ public  class GameServiceImplementation implements GameService {
     @Override
     @Transactional
     public GameEntity addNewGame(String gameName, GenreEntity genreAdd) {
-        GameEntity gameEntity =  returnIfExists(gameName);
+        GameEntity gameEntity = gameRepository
+                .findByGameName(gameName).orElse(null);
+
         if(gameEntity == null )
         {
              gameEntity = GameEntity.builder()
@@ -41,59 +51,105 @@ public  class GameServiceImplementation implements GameService {
 
             return  gameRepository.save(gameEntity);
         }
-        else if (!gameEntity.getGenre().getGenreName().equals(genreAdd.getGenreName())) {
+        else {
+           throw new EntityAlreadyExistsException("Такая игра уже существует",
+                   GameEntity.class.getSimpleName(),
+                   gameEntity.getId());
+        }
 
-             gameEntity.setGenre(genreAdd);
-             return gameRepository.save(gameEntity);
+    }
+    @Override
+    public GameEntity createGameForLink(String gameName, GenreEntity genreAdd)
+    {
+        GameEntity gameEntity = gameRepository
+                .findByGameName(gameName).orElse(null);
+
+        if(gameEntity == null )
+        {
+            gameEntity = GameEntity.builder()
+                    .gameName(gameName)
+                    .genre(genreAdd)
+                    .build();
+
+            return  gameRepository.save(gameEntity);
+        }
+        else if (!Objects.equals(gameEntity.getGenre(), genreAdd)) {
+            throw new EntityAlreadyExistsException(String.format("Игра с таким названием уже существует, но в жанре %s,\n" +
+                            "используйте подходящий жанр или придумайте уникальное название игры"
+                    ,gameEntity.getGenre().getGenreName()),
+                    GameEntity.class.getSimpleName(),
+                    gameEntity.getId());
         }
         else {
             return gameEntity;
         }
-
     }
 
-    public GameEntity returnIfExists(String gameName){
+    @Override
+    @Transactional
+    public void updateGame(Long id, String gameName, GenreEntity updateGenre,boolean forceUpdate)
+    {
 
-        Optional<GameEntity> gameEntity =  gameRepository.findByGameName(gameName);
+       GameEntity findGame = gameRepository.findById(id)
+               .orElseThrow(()-> new NoSuchElementException("Игра не найдена"));
 
-        GameEntity currentGame;
+       Integer count = gameRepository.existsWithGame(findGame);
 
-        if (gameEntity.isPresent())
+        if (count>0 && !forceUpdate)
         {
-            currentGame = gameEntity.get();
-            return currentGame;
+            throw new BusinessLogicException("Игра имеет  " + count + " связей тип [Игра - Издатель]." +
+                    "Убедитесь, что изменение данной сущности не повлияет на работу вашего приложения." +
+                    "Если уверенны, то forceUpdate = true");
         }
-        else{
-            return null;
 
+        GameEntity existing = gameRepository.findByGameName(gameName).orElse(null);
+        if (existing==null)
+        {
+            gameRepository.updateGame(id,gameName,updateGenre);
         }
+        else {
+            throw new UniqueConstraintViolationException("Игра с таким названием уже существует",
+                    GameEntity.class.getSimpleName(),
+                    existing.getId(),
+                    gameName);
+        }
+
+
     }
+
 
     @Override
     @Transactional
-    public void updateGame(Long id, String gameName, GenreEntity updateGenre) {
-        gameRepository.updateGame(id,gameName,updateGenre);
+    public void deleteGame(Long id, boolean forceDelete) {
+        GameEntity findGame= gameRepository.findById(id)
+                        .orElseThrow(()->new NoSuchElementException("Игра не найдена"));
+
+        Integer count  = gameRepository.existsWithGame(findGame);
+        if (count>0 && !forceDelete)
+        {
+            throw new BusinessLogicException("Игра имеет  " + count + " связей тип [Игра - Издатель]." +
+                    "Убедитесь, что удаление данной сущности не повлияет на работу вашего приложения." +
+                    "Если уверенны, то forceDelete = true");
+        }
+        gameRepository.delete(findGame);
     }
 
     @Override
-    @Transactional
-    public void deleteGame(Long id) {
-        gameRepository.deleteById(id);
+    public Page<GameEntity> findAllByGenreWithPaging(String genre, Pageable pageable) {
+       var genreEntity = genreService.findGenreByName(genre)
+               .orElseThrow(()->new NoSuchElementException("Жанр не найден"));
+        return gameRepository.findByGenre(genreEntity,pageable);
     }
 
-    @Override
-    public List<GameEntity> allGames() {
-        return gameRepository.findAll();
-    }
-
-    @Override
-    public List<GameEntity> findAllByGenre(String genre) {
-        return gameRepository.findAllByGenre(genre);
-    }
 
     @Override
     public Optional<GameEntity> findByGameName(String name) {
         return  gameRepository.findByGameName(name);
+    }
+
+    @Override
+    public Page<GameEntity> allGamesWithPaging(PageRequest pageRequest) {
+        return gameRepository.findAll(pageRequest);
     }
 
 

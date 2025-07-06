@@ -24,8 +24,4 @@ public class RegionEntity {
     @Column(name = "region_name",nullable = false,unique = true)
     private String regionName;
 
-    @OneToMany(mappedBy = "region",cascade = CascadeType.PERSIST)
-    private List<RegionSalesEntity> regionSalesEntities;
-
-
 }

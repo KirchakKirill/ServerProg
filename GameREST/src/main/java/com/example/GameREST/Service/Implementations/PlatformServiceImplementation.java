@@ -1,20 +1,31 @@
 package com.example.GameREST.Service.Implementations;
 
+import com.example.GameREST.Entity.GenreEntity;
 import com.example.GameREST.Entity.PlatformEntity;
+import com.example.GameREST.Exception.BusinessLogicException;
+import com.example.GameREST.Exception.UniqueConstraintViolationException;
 import com.example.GameREST.Repository.PlatformRepository;
+import com.example.GameREST.Service.Interfaces.GamePlatformSevice;
 import com.example.GameREST.Service.Interfaces.PlatformService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 public class PlatformServiceImplementation implements PlatformService
 {
-    @Autowired
-    private PlatformRepository platformRepository;
 
+    private final PlatformRepository platformRepository;
+
+
+    public PlatformServiceImplementation(PlatformRepository platformRepository) {
+        this.platformRepository = platformRepository;
+    }
 
     @Override
     public Optional<PlatformEntity> findPlatformByName(String name) {
@@ -22,9 +33,8 @@ public class PlatformServiceImplementation implements PlatformService
     }
 
     @Override
-    @Transactional
-    public PlatformEntity save(String platformName) {
-        PlatformEntity platform = returnIfExists(platformName);
+    public PlatformEntity createOrFind(String platformName) {
+        PlatformEntity platform = platformRepository.findPlatformByName(platformName).orElse(null);
         if(platform == null)
         {
              platform = PlatformEntity.builder()
@@ -38,22 +48,77 @@ public class PlatformServiceImplementation implements PlatformService
     }
 
     @Override
-    public void update(Long id, String platformName) {
-        platformRepository.update(id,platformName);
+    @Transactional
+    public PlatformEntity create(String platformName)
+    {
+        PlatformEntity existing = platformRepository.findPlatformByName(platformName).orElse(null);
+        if (existing != null) {
+            throw new UniqueConstraintViolationException(
+                    "Вы пытаетесь добавить платформу, игнорируя ограничение уникальности названия",
+                    PlatformEntity.class.getSimpleName(),
+                    existing.getId(),
+                    platformName);
+        }
+        return platformRepository.save(PlatformEntity.builder()
+                .platformName(platformName)
+                .build());
     }
 
-    public PlatformEntity returnIfExists(String platformName){
-        Optional<PlatformEntity> platformEntity =  platformRepository.findPlatformByName(platformName);
-        PlatformEntity currentPlatform;
+    @Override
+    @Transactional
+    public void delete(Long id, boolean forceDelete) {
+        PlatformEntity platform = platformRepository.findById(id)
+                        .orElseThrow(()->new NoSuchElementException("Платформа не найдена"));
+        Integer count = platformRepository.existsGamePlatformByPlatform(platform);
 
-        if (platformEntity.isPresent())
+        if (count > 0 && !forceDelete)
         {
-            currentPlatform = platformEntity.get();
-            return currentPlatform;
+            throw new BusinessLogicException("Платформа имеет " + count + " связей типа [Игра - Платформа]." +
+                    "Убедитесь, что удаление данной сущности не повлияет на работу вашего приложения." +
+                    "Если уверенны, то forceDelete = true");
         }
-        else{
-            return null;
+            platformRepository.delete(platform);
 
-        }
     }
+
+    @Override
+    public Page<PlatformEntity> findAllWithPaging(Pageable pageable) {
+        return platformRepository.findAll(pageable);
+    }
+
+    @Override
+    public Optional<PlatformEntity> findById(Long id) {
+        return platformRepository.findById(id);
+    }
+
+
+    @Override
+    @Transactional
+    public void update(Long id, String platformName,boolean forceUpdate) {
+
+        PlatformEntity platform = platformRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Платформа не найдена"));
+
+        Integer count = platformRepository.existsGamePlatformByPlatform(platform);
+
+        if (count > 0 && !forceUpdate) {
+            throw new BusinessLogicException("Платформа имеет " + count + " связей типа [Игра - Платформа]." +
+                    "Убедитесь, что изменение данной сущности не повлияет на работу вашего приложения." +
+                    "Если уверенны, то forceUpdate = true");
+        }
+        PlatformEntity existing = platformRepository.findPlatformByName(platformName).orElse(null);
+        if (existing==null)
+        {
+            platformRepository.update(id,platformName);
+        }
+        else {
+            throw new UniqueConstraintViolationException("Платформа с таким названием уже существует",
+                    PlatformEntity.class.getSimpleName(),
+                    existing.getId(),
+                    platformName);
+        }
+
+
+    }
+
 }

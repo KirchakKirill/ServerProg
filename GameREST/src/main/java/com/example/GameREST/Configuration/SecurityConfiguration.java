@@ -15,7 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -29,15 +29,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+
 
 
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfiguration {
 
 
@@ -64,25 +63,15 @@ public class SecurityConfiguration {
     }
 
 
-    @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider(
-            UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder) {
-
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return provider;
-    }
-
 
     @Bean
     public PreAuthenticatedAuthenticationProvider jwtAuthProvider(
-            DeactivatedTokenRepository deactivatedTokenRepository)
+            DeactivatedTokenRepository deactivatedTokenRepository,
+            UserRepository userRepository)
     {
         var authenticationProvider = new PreAuthenticatedAuthenticationProvider();
         authenticationProvider.setPreAuthenticatedUserDetailsService(
-                new TokenAuthenticationUserDetailsService(deactivatedTokenRepository));
+                new TokenAuthenticationUserDetailsService(deactivatedTokenRepository,userRepository));
         return authenticationProvider;
     }
 
@@ -110,6 +99,11 @@ public class SecurityConfiguration {
                         authorizeHttpRequests
                                 .requestMatchers(HttpMethod.POST,"/games/api/login").permitAll()
                                 .requestMatchers("/error").permitAll()
+                                .requestMatchers("/swagger-ui/**", "/swagger-ui/index.html",
+                                        "/v3/api-docs/**",
+                                        "/swagger-resources/**",
+                                        "/webjars/**",
+                                        "/error").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/games/api/register").permitAll()
                                 .requestMatchers("/games/api/game-name").hasRole("ADMIN")
                                 .anyRequest().authenticated())
@@ -142,12 +136,8 @@ public class SecurityConfiguration {
 
     @Bean
     public AuthenticationManager authenticationManager(
-            DaoAuthenticationProvider daoAuthenticationProvider,
             PreAuthenticatedAuthenticationProvider jwtAuthProvider) throws Exception {
-
-
-
-        return new ProviderManager(daoAuthenticationProvider,jwtAuthProvider);
+        return new ProviderManager(jwtAuthProvider);
     }
 
     @Bean

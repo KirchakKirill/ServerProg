@@ -36,7 +36,7 @@ public class TokenCookieAuthenticationConfigurer extends AbstractHttpConfigurer<
     {
         builder.logout(logout ->logout
                 .logoutUrl("/games/api/logout")
-                .addLogoutHandler(new CookieClearingLogoutHandler("__Host-auth-token"))
+                .addLogoutHandler(new CookieClearingLogoutHandler("auth-token"))
                 .addLogoutHandler(((request, response, authentication) -> {
                     if(authentication != null && authentication.getPrincipal() instanceof TokenUser user)
                     {
@@ -66,7 +66,9 @@ public class TokenCookieAuthenticationConfigurer extends AbstractHttpConfigurer<
             String uri = request.getRequestURI();
             System.out.println("Request URI: " + request.getRequestURI());
             return !uri.equals("/games/api/register") &&
-                    !uri.equals("/games/api/login");
+                    !uri.equals("/games/api/login") &&
+                    !uri.equals("/swagger-ui/index.html") &&
+                    !uri.equals("/swagger-ui/**");
         });
 
         builder.addFilterAfter(cookieAuthenticationFilter, CsrfFilter.class)

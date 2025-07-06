@@ -26,7 +26,4 @@ public class PublisherEntity {
 
     @Column(name = "publisher_name",nullable = false,unique = true)
     private String publisherName;
-
-    @OneToMany(mappedBy = "publisher",cascade = CascadeType.REMOVE)
-    private List<GamePublisherEntity> publisherEntities;
 }

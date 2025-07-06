@@ -6,8 +6,8 @@ CREATE TABLE video_games.game_platform (
   platform_id INT DEFAULT NULL,
   release_year INT DEFAULT NULL,
   CONSTRAINT pk_gameplatform PRIMARY KEY (id),
-  CONSTRAINT fk_gpl_gp FOREIGN KEY (game_publisher_id) REFERENCES video_games.game_publisher (id),
-  CONSTRAINT fk_gpl_pla FOREIGN KEY (platform_id) REFERENCES video_games.platform (id)
+  CONSTRAINT fk_gpl_gp FOREIGN KEY (game_publisher_id) REFERENCES video_games.game_publisher (id) ON DELETE CASCADE ,
+  CONSTRAINT fk_gpl_pla FOREIGN KEY (platform_id) REFERENCES video_games.platform (id) ON DELETE CASCADE
 );
 
 

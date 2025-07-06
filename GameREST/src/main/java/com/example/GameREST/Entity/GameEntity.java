@@ -12,7 +12,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"genre", "gamePublisherEntities"})
 public class GameEntity {
 
     @Id
@@ -26,9 +25,4 @@ public class GameEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "genre_id")
     private GenreEntity genre;
-
-    @OneToMany(mappedBy = "game",cascade = CascadeType.REMOVE)
-    private List<GamePublisherEntity> gamePublisherEntities;
-
-
 }
