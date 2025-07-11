@@ -3,7 +3,8 @@ package com.example.GameREST.Controller;
 import com.example.GameREST.CustomAnnotations.*;
 import com.example.GameREST.DTO.RegionDTO;
 import com.example.GameREST.Entity.RegionEntity;
-import com.example.GameREST.Service.Interfaces.RegionService;
+import com.example.GameREST.Service.GeneraLogic.CreateData.CreationPolicyState;
+import com.example.GameREST.Service.RegionService.RegionService;
 import com.example.GameREST.Utils.ConvertToDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,6 +30,7 @@ import java.util.NoSuchElementException;
 @Validated
 public class RegionController {
     private final RegionService regionService;
+    private final CreationPolicyState POLICY_STATE = CreationPolicyState.STRICT;
 
     public RegionController(RegionService regionService) {
         this.regionService = regionService;
@@ -97,7 +99,7 @@ public class RegionController {
     public ResponseEntity<?> createRegion(@Parameter(description = "Название региона, который нужно создать")
                                           @RequestParam @NotNull @Size(min = 3, max = 50) String regionName,
                                           UriComponentsBuilder uriComponentsBuilder) {
-        RegionEntity newRegion = regionService.create(regionName);
+        RegionEntity newRegion = regionService.create(regionName,POLICY_STATE);
         return ResponseEntity
                 .created(uriComponentsBuilder.replacePath("{regionId}")
                         .build(Map.of("regionId", newRegion.getId())))

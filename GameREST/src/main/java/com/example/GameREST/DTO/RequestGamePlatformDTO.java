@@ -58,4 +58,6 @@ public class RequestGamePlatformDTO {
     )
     @NotNull
     private String genreName;
+
+
 }

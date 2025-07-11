@@ -160,16 +160,14 @@ public class RestErrorController {
     @ExceptionHandler(UniqueConstraintViolationException.class)
     public ResponseEntity<ErrorResponseDTO> handleUniqueConstraintViolationException(UniqueConstraintViolationException  uniqueConstraintViolationException)
     {
-        String entityName = uniqueConstraintViolationException.getEntityName();
         String duplicateValue = uniqueConstraintViolationException.getDuplicateValue();
         Long fieldId = uniqueConstraintViolationException.getFieldId();
         ErrorResponseDTO error = ErrorResponseDTO.builder()
                 .error("Нарушение уникальности данных")
                 .message(String.format(
-                        "Значение '%s' уже существует для поля c Id = '%s' в сущности %s",
+                        "Значение '%s' уже существует для поля c Id = '%s'",
                         duplicateValue,
-                        fieldId,
-                        entityName
+                        fieldId
                 ))
                 .timestamp(Date.from(Instant.now()))
                 .status(HttpStatus.CONFLICT.value())
@@ -184,13 +182,7 @@ public class RestErrorController {
     public ResponseEntity<ErrorResponseDTO> handleEntityAlreadyExistsException(EntityAlreadyExistsException ex) {
         ErrorResponseDTO error = ErrorResponseDTO.builder()
                 .error("Конфликт данных")
-                .message(String.format(
-                        "%s; Сущность: %s; ID существующей записи: %d",
-
-                        ex.getMessage(),
-                        ex.getEntityName(),
-                        ex.getIdExistingEntity()
-                ))
+                .message(ex.getMessage())
                 .timestamp(Date.from(Instant.now()))
                 .status(HttpStatus.CONFLICT.value())
                 .build();

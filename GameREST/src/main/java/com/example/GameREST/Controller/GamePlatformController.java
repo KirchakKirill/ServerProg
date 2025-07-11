@@ -2,13 +2,12 @@ package com.example.GameREST.Controller;
 
 import com.example.GameREST.CustomAnnotations.AuthApiResponse;
 import com.example.GameREST.CustomAnnotations.BindExceptionResponse;
-import com.example.GameREST.CustomAnnotations.ConstraintValidationExceptionResponse;
 import com.example.GameREST.CustomAnnotations.EntityAlreadyExistsExceptionResponse;
 import com.example.GameREST.DTO.ReadOnlyGamePlatformDTO;
 import com.example.GameREST.DTO.RequestGamePlatformDTO;
 import com.example.GameREST.DTO.RequestGamePlatformUpdateDTO;
 import com.example.GameREST.Entity.GamePlatformEntity;
-import com.example.GameREST.Service.Interfaces.GamePlatformSevice;
+import com.example.GameREST.Service.GamePlatformService.GamePlatformService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -17,7 +16,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -36,10 +34,10 @@ import java.util.*;
 public class GamePlatformController {
 
 
-    private final GamePlatformSevice gamePlatformSevice;
+    private final GamePlatformService gamePlatformService;
 
-    public GamePlatformController(GamePlatformSevice gamePlatformSevice) {
-        this.gamePlatformSevice = gamePlatformSevice;
+    public GamePlatformController(GamePlatformService gamePlatformService) {
+        this.gamePlatformService = gamePlatformService;
 
     }
 
@@ -78,7 +76,7 @@ public class GamePlatformController {
                                                                     @PathVariable(name = "page") int page)
     {
 
-        List<ReadOnlyGamePlatformDTO> gamePlatformEntityList = gamePlatformSevice.getAll(PageRequest.of(page,20))
+        List<ReadOnlyGamePlatformDTO> gamePlatformEntityList = gamePlatformService.getAll(PageRequest.of(page,20))
                 .stream()
                 .map(this::convertToReadOnlyGamePlatformDTO)
                 .toList();
@@ -111,7 +109,7 @@ public class GamePlatformController {
     public ResponseEntity<ReadOnlyGamePlatformDTO> getGamePlatform(@Parameter(description = "id запрашиваемой связи (начиная с 1)",example = "1")
                                                                        @PathVariable("id") Long id)
     {
-        GamePlatformEntity gamePlatformEntity = gamePlatformSevice.findById(id)
+        GamePlatformEntity gamePlatformEntity = gamePlatformService.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Не найден элемент"));
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -161,7 +159,7 @@ public class GamePlatformController {
             }
         }
         else {
-            GamePlatformEntity gamePlatformEntity = gamePlatformSevice.save(requestGamePlatformDTO);
+            GamePlatformEntity gamePlatformEntity = gamePlatformService.save(requestGamePlatformDTO);
             return ResponseEntity.created(uriComponentsBuilder.replacePath("games/api/game-platform/{id}")
                     .build(Map.of("id",gamePlatformEntity.getId()))).body(this.convertToReadOnlyGamePlatformDTO(gamePlatformEntity));
         }
@@ -208,7 +206,7 @@ public class GamePlatformController {
 
             try{
 
-                gamePlatformSevice.update(id,updateDTO);
+                gamePlatformService.update(id,updateDTO);
 
             } catch (NoSuchElementException exception) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -232,7 +230,7 @@ public class GamePlatformController {
     public ResponseEntity<Void> deleteGamePlatformInfoById(@Parameter(description = "id удаляемой сущности")
                                                                @PathVariable("id") Long id)
     {
-        gamePlatformSevice.delete(id);
+        gamePlatformService.delete(id);
         return ResponseEntity.noContent().build();
     }
 

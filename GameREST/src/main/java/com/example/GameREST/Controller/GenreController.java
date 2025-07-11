@@ -6,8 +6,8 @@ import com.example.GameREST.CustomAnnotations.ConstraintValidationExceptionRespo
 import com.example.GameREST.CustomAnnotations.UniqueConstraintViolationExceptionResponse;
 import com.example.GameREST.DTO.GenreDTO;
 import com.example.GameREST.Entity.GenreEntity;
-import com.example.GameREST.Entity.PlatformEntity;
-import com.example.GameREST.Service.Interfaces.GenreService;
+import com.example.GameREST.Service.GeneraLogic.CreateData.CreationPolicyState;
+import com.example.GameREST.Service.GenreService.GenreService;
 import com.example.GameREST.Utils.ConvertToDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +34,7 @@ import java.util.NoSuchElementException;
 public class GenreController {
 
     private final GenreService genreService;
+    private final CreationPolicyState POLICY_STATE = CreationPolicyState.STRICT;
 
     public GenreController(GenreService genreService) {
         this.genreService = genreService;
@@ -112,7 +113,7 @@ public class GenreController {
             @RequestParam("genreName") @Size(min = 3, max = 50) String genreName,
             UriComponentsBuilder uriComponentsBuilder) {
 
-        GenreEntity newGenre = genreService.create(genreName);
+        GenreEntity newGenre = genreService.create(genreName,POLICY_STATE);
         return ResponseEntity
                 .created(uriComponentsBuilder.replacePath("{genreId}")
                         .build(Map.of("genreId", newGenre.getId())))

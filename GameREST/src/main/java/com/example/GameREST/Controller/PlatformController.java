@@ -5,11 +5,9 @@ import com.example.GameREST.CustomAnnotations.BusinessLogicExceptionResponse;
 import com.example.GameREST.CustomAnnotations.ConstraintValidationExceptionResponse;
 import com.example.GameREST.CustomAnnotations.UniqueConstraintViolationExceptionResponse;
 import com.example.GameREST.DTO.PlatformDTO;
-import com.example.GameREST.DTO.PublisherDTO;
 import com.example.GameREST.Entity.PlatformEntity;
-import com.example.GameREST.Entity.PublisherEntity;
-import com.example.GameREST.Service.Interfaces.PlatformService;
-import com.example.GameREST.Service.Interfaces.PublisherService;
+import com.example.GameREST.Service.GeneraLogic.CreateData.CreationPolicyState;
+import com.example.GameREST.Service.PlatformService.PlatformService;
 import com.example.GameREST.Utils.ConvertToDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,6 +34,7 @@ import java.util.NoSuchElementException;
 public class PlatformController
 {
     private final PlatformService platformService;
+    private final CreationPolicyState POLICY_STATE = CreationPolicyState.STRICT;
 
     public PlatformController(PlatformService platformService) {
         this.platformService = platformService;
@@ -114,7 +113,7 @@ public class PlatformController
                                              UriComponentsBuilder uriComponentsBuilder
     )
     {
-        PlatformEntity newPlatform = platformService.create(platform);
+        PlatformEntity newPlatform = platformService.create(platform,POLICY_STATE);
         return ResponseEntity
                 .created(uriComponentsBuilder.replacePath("{platId}")
                         .build(Map.of("platId",newPlatform.getId())))

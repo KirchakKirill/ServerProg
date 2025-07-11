@@ -2,8 +2,8 @@ package com.example.GameREST.Controller;
 
 
 import com.example.GameREST.DTO.UserDTO;
-import com.example.GameREST.Service.Interfaces.UserAuthorityService;
-import com.example.GameREST.Service.Interfaces.UserService;
+import com.example.GameREST.Service.UserAuthorityService.UserAuthorityService;
+import com.example.GameREST.Service.UserService.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -103,7 +103,7 @@ public class RegisterController {
                 return ResponseEntity.badRequest().body("Пользователь уже существует");
             }
 
-            userService.save(userDTO.getUsername(), userDTO.getPassword());
+            userService.save(userDTO);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }
     }

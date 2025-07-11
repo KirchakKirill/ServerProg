@@ -7,13 +7,9 @@ import lombok.Getter;
 public class EntityAlreadyExistsException extends RuntimeException{
 
     String message;
-    String entityName;
-    Long idExistingEntity;
 
-    public EntityAlreadyExistsException(String msg, String entityName, Long idExistingEntity)
+    public EntityAlreadyExistsException(String msg)
     {
         this.message = msg;
-        this.entityName = entityName;
-        this.idExistingEntity = idExistingEntity;
     }
 }

@@ -29,7 +29,6 @@ public interface GameRepository extends JpaRepository<GameEntity,Long> {
     );
 
     Page<GameEntity> findByGenre(GenreEntity genre,Pageable pageable);
-
     @Query("SELECT COUNT(g) FROM GameEntity g WHERE g.genre = :genre")
     Integer existsWithGenre(@Param("genre") GenreEntity genre);
 

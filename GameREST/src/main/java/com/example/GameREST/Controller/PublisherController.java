@@ -2,18 +2,16 @@ package com.example.GameREST.Controller;
 
 
 import com.example.GameREST.CustomAnnotations.*;
-import com.example.GameREST.DTO.ErrorResponseDTO;
 import com.example.GameREST.DTO.PublisherDTO;
 import com.example.GameREST.Entity.PublisherEntity;
-import com.example.GameREST.Service.Interfaces.PublisherService;
+import com.example.GameREST.Service.GeneraLogic.CreateData.CreationPolicyState;
+import com.example.GameREST.Service.PublisherService.PublisherService;
 import com.example.GameREST.Utils.ConvertToDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.transaction.Transactional;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,7 +22,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -35,6 +32,7 @@ import java.util.NoSuchElementException;
 public class PublisherController
 {
     private final PublisherService publisherService;
+    private final CreationPolicyState POLICY_STATE = CreationPolicyState.STRICT;
 
     public PublisherController(PublisherService publisherService) {
         this.publisherService = publisherService;
@@ -113,7 +111,7 @@ public class PublisherController
                                              UriComponentsBuilder uriComponentsBuilder
     )
     {
-        PublisherEntity newPublisher = publisherService.create(publisher);
+        PublisherEntity newPublisher = publisherService.create(publisher,POLICY_STATE);
         return ResponseEntity
                     .created(uriComponentsBuilder.replacePath("{pubId}")
                             .build(Map.of("pubId",newPublisher.getId())))

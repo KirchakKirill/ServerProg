@@ -4,8 +4,9 @@ import com.example.GameREST.DTO.ReadOnlyGameDTO;
 import com.example.GameREST.DTO.RequestGameDTO;
 import com.example.GameREST.Entity.GameEntity;
 import com.example.GameREST.Entity.GenreEntity;
-import com.example.GameREST.Service.Interfaces.GameService;
-import com.example.GameREST.Service.Interfaces.GenreService;
+import com.example.GameREST.Service.GameService.GameService;
+import com.example.GameREST.Service.GeneraLogic.CreateData.CreationPolicyState;
+import com.example.GameREST.Service.GenreService.GenreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -13,10 +14,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -25,7 +25,6 @@ import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -33,12 +32,13 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping("games/api")
+@RequestMapping("games/api/game")
 public class GameController
 {
 
     private final GameService gameService;
     private  final GenreService genreService;
+    private final CreationPolicyState POLICY_STATE = CreationPolicyState.STRICT;
 
     public GameController(GameService gameService, GenreService genreService) {
         this.gameService = gameService;
@@ -66,7 +66,7 @@ public class GameController
     }
 
 
-    @GetMapping("/allgames/{page}")
+    @GetMapping("/all/{page}")
     @Operation(
             summary = "Получить список всех игр (пагинация)",
             security = @SecurityRequirement(name="cookieAuth")
@@ -97,7 +97,7 @@ public class GameController
 
 
 
-    @GetMapping("/game/{gameId}")
+    @GetMapping("/{Id}")
     @Operation(
             summary = "Получить игру по id",
             security = @SecurityRequirement(name="cookieAuth")
@@ -115,7 +115,7 @@ public class GameController
 
     )
     @ConstraintValidationExceptionResponse
-    public ResponseEntity<ReadOnlyGameDTO> getGame(@Parameter(description = "id игры (начиная с 1)", example = "1") @PathVariable("gameId") Long id)
+    public ResponseEntity<ReadOnlyGameDTO> getGame(@Parameter(description = "id игры (начиная с 1)", example = "1") @PathVariable("Id") Long id)
     {
         GameEntity game = gameService.findById(id)
                 .orElseThrow(()->  new NoSuchElementException("Некорректная  игра " +
@@ -242,7 +242,7 @@ public class GameController
     @BindExceptionResponse
     @EntityAlreadyExistsExceptionResponse
     @AuthApiResponse
-    @PostMapping("/add")
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> addNewGame( @Parameter(description = "Добавляемая игра",example = "{\ngameName: Witcher 4,\ngenreName: Action\n}") @Valid @RequestBody RequestGameDTO requestGameDTO,
                                         BindingResult bindingResult,
@@ -257,10 +257,10 @@ public class GameController
         }
         else{
             GenreEntity genreForAdd = findGenre(requestGameDTO.getGenreName());
-            GameEntity addedGame = gameService.addNewGame(requestGameDTO.getGameName(), genreForAdd);
+            GameEntity addedGame = gameService.addNewGame(requestGameDTO.getGameName(), genreForAdd,POLICY_STATE);
             return ResponseEntity
-                    .created(uriComponentsBuilder.replacePath("games/api/game/{gameId}")
-                    .build(Map.of("gameId",addedGame.getId()))).body(this.createDTO(addedGame));
+                    .created(uriComponentsBuilder.replacePath("games/api/game/{Id}")
+                    .build(Map.of("Id",addedGame.getId()))).body(this.createDTO(addedGame));
 
         }
 
